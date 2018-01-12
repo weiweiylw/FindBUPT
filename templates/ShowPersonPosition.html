@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}位置分享{% endblock %}
+
+{% block head %}
+    <style type="text/css">
+      #allmap {width: 100%;height: 400px;overflow: hidden;margin:0;font-family:"微软雅黑";}
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=q84CoOzhSdhAIs2bY86PoGe0"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="row clearfix">
+
+    <div class="col-md-2 column">
+    </div>
+
+    <div class="col-md-10 column">
+
+      <h3>在这儿：<small>{{ pName }}</small></h3>
+      <div class="row">
+        <div class="col-sm-6 col-md-10">
+          <div class="thumbnail">
+            <div id="allmap"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+{% endblock %}
+
+{% block script %}
+  <script type="text/javascript">
+    // 百度地图API功能
+    var map = new BMap.Map("allmap");
+    var point = new BMap.Point({{ positionx }}, {{ positiony }});
+    map.centerAndZoom(point, 17);
+    var marker = new BMap.Marker(point);  // 创建标注
+    map.addOverlay(marker);               // 将标注添加到地图中
+    marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+  </script>
+  </script>
+{% endblock %}

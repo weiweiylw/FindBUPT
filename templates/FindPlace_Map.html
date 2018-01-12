@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}校园平面图{% endblock %}
+
+{% block head %}
+    <style type="text/css">
+      #allmap {width: 100%;height: 400px;overflow: hidden;margin:0;font-family:"微软雅黑";}
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=q84CoOzhSdhAIs2bY86PoGe0"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- 搜索框  -->
+    	<div class="row clearfix">
+
+        	<div class="col-md-2 column" style="text-align:center">
+        		<p class="lead"><span style="font-family:'方正喵呜体 Bold', '方正喵呜体';">找你所想!</span></p>
+        	</div>
+        	
+			<form action="{% url "account.views.findPlace_view" %}" method="get">
+		        <div class="col-md-8 column">
+		          <div class="form-group">
+		            <input type="text" name="keywords" class="form-control">
+		          </div> 
+		        </div>
+		        <div class="col-md-1 column">
+		          <button type="submit" class="btn btn-default">找一下</button>
+		        </div>
+	        </form>
+
+          	<div class="col-md-1 column"></div>
+        </div>      
+      
+    <!-- 搜索结果 -->
+		<div class="row clearfix">
+
+    	<!-- 侧边导航 -->
+	    <div class="col-md-2 column">
+	      <ul class="nav nav-pills nav-stacked" role="tablist" style="text-align:center">
+	        <li role="presentation"><a href="{% url "account.views.toFindPlace_view" %}">所有地方</a></li>
+	        <li role="presentation" class="active"><a href="{% url "account.views.toFindPlaceByMap_view" %}">校园平面图</a></li>
+	        <li role="presentation"><a href="#">部门索引</a></li>
+	      </ul>
+	    </div>
+
+			<div class="col-md-10 column">
+          <h3>校园平面图：<small>点击查看详情</small></h3>
+          <div class="row">
+            <div class="col-sm-6 col-md-10">
+              <div class="thumbnail">
+                <div id="allmap"></div>
+              </div>
+            </div>
+          </div>
+
+			</div>
+        </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+
+    // 百度地图API功能
+    var map = new BMap.Map("allmap");    // 创建Map实例
+    map.centerAndZoom(new BMap.Point(116.365049, 39.967299), 17);  // 初始化地图,设置中心点坐标和地图级别
+    map.addControl(new BMap.MapTypeControl());   //添加地图类型控件
+    map.setCurrentCity("北京");          // 设置地图显示的城市 此项是必须设置的
+    map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+
+    map.addEventListener("click", function(e){ 
+      var positionx = e.point.lng;
+      var positiony = e.point.lat;
+      //alert (positionx + ", " + positiony);
+      var params = {
+          'positionx':positionx,
+          'positiony':positiony
+      }; 
+
+      sendPosition(params)
+
+    });
+  </script>
+{% endblock %}

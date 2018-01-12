@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load mytags %}
+
+{% block title %}个人信息{% endblock %}
+
+{% block head %}
+  <style type="text/css">
+    td { text-align:center; }
+  </style>
+{% endblock %}
+
+{% block content %}
+{% load staticfiles %}
+  <div class="row clearfix">
+
+    <div class="col-md-2 column">
+      <ul class="nav nav-pills nav-stacked" role="tablist" style="text-align:center">
+        <li role="presentation" class="active"><a href="{% url "account.views.toPersonalManagement_view" %}">我的名片</a></li>
+        <li role="presentation"><a href="{% url "account.views.toSharePosition_view" %}">位置分享</a></li>
+      </ul>
+    </div>
+
+    <div class="col-md-8 column">
+      {% if user.is_authenticated %}
+        {% if user.userprofile.card %}
+
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h2 class="panel-title">我的名片</h2>
+          </div>
+          <div class="panel-body">
+            <table class="table table-hover">
+              <tr>
+                <td width="200px" style="text-align:right">我的账号：</td>
+                <td>{{user}}</td>
+              </tr>
+              <tr>
+                <td style="text-align:right">我的名字：</td>
+                <td>{{ user.userprofile.card.name }}</td>
+              </tr>
+              <tr>
+                <td style="text-align:right">我被赞过：</td>
+                <td>{{ user.userprofile.card.praise_count }}次</td>
+              </tr>
+              <tr>
+                <td style="text-align:right">我的标签：</td>
+                <td>
+                  {% if user.userprofile.card.tags.all %}
+                    {% for tag in user.userprofile.card.tags.all %}
+                      <button type="button" class="btn btn-info btn-xs">{{ tag.key }}</button>
+                    {% endfor %}
+                  {% else %}
+                    暂时还没有贴标签哦
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td style="text-align:right">关于我：</td>
+
+                
+                  {% if user.userprofile.card.type_status == 'TC'%}    
+                  <td style="text-align:left">
+                  {% autoescape off %}
+                    {{ user.userprofile.card.description | output_teacher_self}}
+                  {% endautoescape %}
+                  </td>
+                  {% else %}
+                  <td>
+                    {{ user.userprofile.card.description }}
+                  </td>
+                  {% endif%}
+                
+              </tr>
+              <tr>
+                <td style="text-align:right">我在这里：</td>
+                <td>
+                  {% if user.userprofile.card.location %}
+                  <a class="btn btn-link" href="{% url "account.views.showSelfPosition_view" %}"><i class="glyphicon glyphicon-map-marker"></i></a>
+                  {% else %}
+                  暂时还没分享位置哦
+                  {% endif %}
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        {% else %}
+          您的个人信息还不完善，点<a href="#createPersonalInfo" data-toggle="modal">这里</a>创建您的名片吧！
+        {% endif %}
+      {% else %}
+        请先登陆哦！
+      {% endif %}
+    </div>
+
+    <div class="col-md-1 column"></div>
+  </div>
+
+<!-- 创建个人信息模态框 -->
+<div class="modal fade" id="createPersonalInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">创建个人信息</h4>
+      </div>
+      <div class="modal-body">
+
+        <p>用户名：<input type="text" id="cpName" class="form-control" placeholder="Name"></p>
+        <p>Tags（请用半角空格分隔Tags）：<input type="text" id="cpTags" class="form-control"  placeholder="Tags"></p>
+        <p>您是：
+        <label class="radio-inline">
+          <input type="radio" name="inlineRadioOptions" id="usertype" value="ST"> 学生
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="inlineRadioOptions" id="usertype" value="TC"> 教师
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="inlineRadioOptions" id="usertype" value="SF"> 职工
+        </label></p>
+        <p>介绍一下自己：</p>
+        <textarea id="description" class="form-control" rows="5"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary" onclick="createPI();">创建</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+  <script type="text/javascript">
+  function createPI(){
+    var url = "{% url "account.views.createPersonalInfo_view" %}";
+    var name = $("#cpName").val();  
+    var tags = $("#cpTags").val();
+    var usertype = $("#usertype").val();
+    var description = $("#description").val();
+    var params = {
+      'name': name,
+              'tags': tags,
+              'usertype': usertype,
+              'description': description
+          };  
+          $.post(url, params,
+            function (result,textStatus){  
+              if(textStatus == 'success'){  
+                  if(result != null){ 
+                     alert(result.response_message); 
+                     location.reload();
+                } 
+              }  
+            },
+          "json"
+        );
+      }
+  </script>
+{% endblock %}
